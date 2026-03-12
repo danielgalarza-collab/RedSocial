@@ -1,0 +1,19 @@
+<h1>Feed</h1>
+
+{% for photo in photos %}
+
+<div>
+    <p><b>{{ photo.user.username }}</b></p>
+
+    <img src="{{ photo.image.url }}" width="300">
+
+    <p>{{ photo.caption }}</p>
+
+    <p>❤️ Likes: {{ photo.likes.count }}</p>
+    <p>💬 Comments: {{ photo.comments.count }}</p>
+
+</div>
+
+<hr>
+
+{% endfor %}

@@ -1,0 +1,22 @@
+<h1>Notifications</h1>
+
+{% for notification in notifications %}
+
+<p>
+<b>{{ notification.sender.username }}</b>
+
+{% if notification.notification_type == "like" %}
+liked your photo
+{% endif %}
+
+{% if notification.notification_type == "comment" %}
+commented your photo
+{% endif %}
+
+{% if notification.notification_type == "follow" %}
+started following you
+{% endif %}
+
+</p>
+
+{% endfor %}
