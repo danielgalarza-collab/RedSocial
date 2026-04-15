@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from photos.models import Photo
+from backend.photos.models import Photo
 
 
 class Like(models.Model):

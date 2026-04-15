@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from photos.models import Photo
-from users.models import Profile
-from interactions.models import Message, Conversation, ConversationUser
+from backend.photos.models import Photo
+from backend.users.models import Profile
+from backend.interactions.models import Message, Conversation, ConversationUser
 
 
 # --- Fotos del perfil ---

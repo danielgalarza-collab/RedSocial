@@ -9,4 +9,4 @@ class InteractionsConfig(AppConfig):
     name = 'interactions'
 
     def ready(self):
-        import interactions.signals
+        import backend.interactions.signals

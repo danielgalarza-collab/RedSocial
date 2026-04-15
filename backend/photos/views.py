@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from .models import Photo
 from .serializers import PhotoSerializer
 from django.views.generic import ListView
-from interactions.models import Follow
+from backend.interactions.models import Follow
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated

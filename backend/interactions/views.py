@@ -21,7 +21,7 @@ from .models import (
     Notification
 )
 
-from photos.models import Photo
+from backend.photos.models import Photo
 
 
 
