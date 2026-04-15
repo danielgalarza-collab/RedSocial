@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 250px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #inputArea {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 15px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Prueba de WebSocket Chat</h2>
+
+<div id="messages"></div>
+
+<div id="inputArea">
+    <input id="messageInput" type="text" placeholder="Escribe un mensaje...">
+    <button onclick="sendMessage()">Enviar</button>
+</div>
+
+<script>
+    // Conexión WebSocket
+    const socket = new WebSocket("ws://127.0.0.1:8000/ws/chat/room1/");
+
+    const messagesDiv = document.getElementById("messages");
+
+    socket.onopen = () => {
+        messagesDiv.innerHTML += "<p><strong>Conectado al WebSocket</strong></p>";
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        messagesDiv.innerHTML += `<p>${data.message}</p>`;
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    };
+
+    socket.onclose = () => {
+        messagesDiv.innerHTML += "<p><strong>Conexión cerrada</strong></p>";
+    };
+
+    socket.onerror = (error) => {
+        messagesDiv.innerHTML += "<p><strong>Error en WebSocket</strong></p>";
+        console.error("WebSocket error:", error);
+    };
+
+    function sendMessage() {
+        const input = document.getElementById("messageInput");
+        const message = input.value;
+
+        if (message.trim() !== "") {
+            socket.send(JSON.stringify({ message: message }));
+            input.value = "";
+        }
+    }
+</script>
+
+</body>
+</html>

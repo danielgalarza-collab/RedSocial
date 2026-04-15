@@ -1,0 +1,10 @@
+<h1>Conversation</h1>
+
+{% for message in conversation.messages.all %}
+
+<p>
+<b>{{ message.sender.username }}</b>:
+{{ message.text }}
+</p>
+
+{% endfor %}
