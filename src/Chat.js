@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "./api";
+import axios from "axios";
 
 import Login from "./Login";
 import Comments from "./Comments";
@@ -12,89 +12,96 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [photos, setPhotos] = useState([]);
 
-  // conversación seleccionada
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  // LISTA GLOBAL DE CONVERSACIONES
   const [conversations, setConversations] = useState([]);
 
-  //  CONTADOR DE NOTIFICACIONES
   const [notificationCount, setNotificationCount] = useState(0);
 
-  //  Función para marcar notificaciones como leídas
   const markNotificationsAsRead = () => {
-    api.post("interactions/notifications/read/")
-      .then(() => {
-        setNotificationCount(0); // vaciar contador
-      });
+    axios.post(
+      "http://127.0.0.1:8000/api/notifications/read/",
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+      setNotificationCount(0);
+    });
   };
 
-  //  Cargar notificaciones al inicio
   useEffect(() => {
     if (token) {
-      api.get("interactions/notifications/")
-        .then(res => {
-          const unread = res.data.filter(n => !n.is_read).length;
-          setNotificationCount(unread);
-        });
+      axios.get("http://127.0.0.1:8000/api/notifications/", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        const unread = res.data.filter(n => !n.is_read).length;
+        setNotificationCount(unread);
+      });
     }
   }, [token]);
 
-  // Cargar conversaciones al inicio
+  // Cargar conversaciones (RUTA CORREGIDA)
   useEffect(() => {
     if (token) {
-      api.get("interactions/chat/conversations/")
-        .then(res => setConversations(res.data));
+      axios.get("http://127.0.0.1:8000/api/interactions/chat/conversations/", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setConversations(res.data));
     }
   }, [token]);
 
-  // Función para crear o obtener una conversación
+  // Crear o obtener conversación (RUTA CORREGIDA)
   const startConversation = (otherUserId) => {
-    api.post("interactions/chat/start/", { user_id: otherUserId })
-      .then(res => {
-        const conversationId = res.data.conversation_id;
+    axios.post(
+      "http://127.0.0.1:8000/api/interactions/chat/start/",
+      { user_id: otherUserId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(res => {
+      const conversationId = res.data.conversation_id;
+      setSelectedConversation(conversationId);
 
-        // Seleccionar conversación
-        setSelectedConversation(conversationId);
-
-        // Opcional: moverla al tope si ya existe
-        setConversations(prev => {
-          const exists = prev.find(c => c.id === conversationId);
-          if (exists) return prev;
-          return prev; // ya se actualizará sola cuando llegue el primer mensaje
-        });
+      setConversations(prev => {
+        const exists = prev.find(c => c.id === conversationId);
+        if (exists) return prev;
+        return prev;
       });
+    });
   };
 
-  // cargar feed
   useEffect(() => {
     if (token) {
-      api.get("photos/feed/")
-        .then(res => setPhotos(res.data));
+      axios.get("http://127.0.0.1:8000/api/photos/feed/", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setPhotos(res.data));
     }
   }, [token]);
 
-  // dar like
   const handleLike = (photoId) => {
-    api.post(`interactions/like/${photoId}/`)
-      .then(res => {
-        setPhotos(prev =>
-          prev.map(p =>
-            p.id === photoId
-              ? {
-                  ...p,
-                  likes_count: res.data.liked
-                    ? p.likes_count + 1
-                    : p.likes_count - 1,
-                  is_liked: res.data.liked
-                }
-              : p
-          )
-        );
-      });
+    axios.post(
+      `http://127.0.0.1:8000/api/interactions/like/${photoId}/`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(res => {
+      setPhotos(prev =>
+        prev.map(p =>
+          p.id === photoId
+            ? {
+                ...p,
+                likes_count: res.data.liked
+                  ? p.likes_count + 1
+                  : p.likes_count - 1,
+                is_liked: res.data.liked
+              }
+            : p
+        )
+      );
+    });
   };
 
-  // si no hay token → login
   if (!token) {
     return <Login setToken={setToken} />;
   }
@@ -103,7 +110,6 @@ function App() {
     <div>
       <h1>Feed</h1>
 
-      {/*  ICONO DE NOTIFICACIONES (clicable) */}
       <div
         onClick={markNotificationsAsRead}
         style={{
@@ -161,20 +167,19 @@ function App() {
         </div>
       ))}
 
-      {/* Perfil de prueba */}
       <Profile 
         userId={1} 
         token={token} 
         onMessage={startConversation}
       />
 
-      {/* Sección de mensajes */}
       <h1>Mensajes</h1>
 
       <Conversations 
         token={token}
         conversations={conversations}
-        onSelect={setSelectedConversation}
+        setConversationId={setSelectedConversation}
+        setConversations={setConversations}
       />
 
       {selectedConversation && (
